@@ -15,7 +15,7 @@ public class ByCharsEngine extends Split.Engine {
 
     public ByCharsEngine(Split split) {
         this.split = split;
-        //System.out.println("ByChar==========");
+        System.out.println("ByChar==========");
     }
 
     @Override
@@ -41,7 +41,6 @@ public class ByCharsEngine extends Split.Engine {
 
     @Override
     protected void checkNewFile() throws IOException {
-        //А как же то,что this.file null с самого начала???
         int max = 0;
 
         if( this.currentChar > this.split.getSizeInChars() || this.file == null ) {
