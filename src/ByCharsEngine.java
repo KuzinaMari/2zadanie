@@ -15,7 +15,7 @@ public class ByCharsEngine extends Split.Engine {
 
     public ByCharsEngine(Split split) {
         this.split = split;
-        System.out.println("ByChar==========");
+        //System.out.println("ByChar==========");
     }
 
     @Override
@@ -41,14 +41,18 @@ public class ByCharsEngine extends Split.Engine {
 
     @Override
     protected void checkNewFile() throws IOException {
-        if( this.currentChar > this.split.getSizeInChars() || this.file == null ){
+        //А как же то,что this.file null с самого начала???
+        int max = 0;
+
+        if( this.currentChar > this.split.getSizeInChars() || this.file == null ) {
             this.currentFile++;
             if( this.file != null ){
                 this.fr.close();
-            }
-            this.file = new File("C:\\Users\\1\\IdeaProjects\\var122zd\\src\\var17\\" + this.split.getBaseName() + Integer.toString(this.currentFile));
+            } //"C:\\Users\\1\\IdeaProjects\\var122zd\\src\\var17\\" +
+            this.file = new File( this.split.fileName( this.currentFile, max ) );
             this.fr = new FileWriter(this.file);
             this.currentChar = 1;
+            max = (int) Math.round( Math.ceil( this.file.length() / this.split.getSizeInChars() ) );
         }
     }
 

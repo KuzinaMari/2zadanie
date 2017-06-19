@@ -41,14 +41,16 @@ public class ByLinesEngine extends Split.Engine {
 
         @Override
         protected void checkNewFile() throws IOException {
-            if( this.currentLine > this.split.getSizeInLines() || this.file == null ){
+            int max = 0;
+            if( this.currentLine > this.split.getSizeInLines() || this.file == null ) {
                 this.currentFile++;
                 if( this.file != null ){
                     this.fr.close();
                 }
-                this.file = new File("C:\\Users\\1\\IdeaProjects\\var122zd\\src\\var17\\" + this.split.getBaseName() + Integer.toString(this.currentFile));
+                this.file = new File( this.split.fileName( this.currentFile, max ) );
                 this.fr = new FileWriter(this.file);
                 this.currentLine = 1;
+                max = (int) this.file.length();
             } else {
                 this.line = "\n" + this.line;
             }

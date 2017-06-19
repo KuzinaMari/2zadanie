@@ -1,5 +1,7 @@
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Iterator;
 
@@ -9,9 +11,9 @@ import java.util.Iterator;
 
 public class Split {
 
-     static enum ModeFlag { BY_LINES, BY_CHARS, BY_FILES }
+    enum ModeFlag { BY_LINES, BY_CHARS, BY_FILES }//создаем перечисление вариантов разбора файла
 
-    public static abstract class Engine{
+    public static abstract class Engine {
         protected abstract void init() throws FileNotFoundException;
         protected abstract void readChunk() throws IOException;
         protected abstract boolean hasNext();
@@ -30,7 +32,7 @@ public class Split {
         }
     }
 
-    private boolean numbersInNames = false;
+    private boolean numbersInNames; //по умолчанию false
 
     public boolean isNumbersInNames() {
         return numbersInNames;
@@ -67,7 +69,16 @@ public class Split {
     private String fileName = "";
     private ModeFlag mode;
 
-    public Split(boolean numbersInNames, int sizeInLines, int sizeInChars, int outFilesCount, String baseName, String fileName, ModeFlag mode) {
+    private void printParamsInfo() {
+        System.out.println( "numbersInNames " + this.numbersInNames );
+        System.out.println( "size " + this.sizeInLines );
+        System.out.println( "sizeInChars " + this.sizeInChars );
+        System.out.println( "outFilesCount " + this.outFilesCount );
+        System.out.println( "baseName " + this.baseName );
+        System.out.println( "fileName " + this.fileName );
+    }
+
+    public Split(boolean numbersInNames, int sizeInLines, int sizeInChars, int outFilesCount, String baseName, String fileName, ModeFlag mode) {//отладочная информация
         this.numbersInNames = numbersInNames;
         this.sizeInLines = sizeInLines;
         this.sizeInChars = sizeInChars;
@@ -94,18 +105,9 @@ public class Split {
         engine.doSplit();
     }
 
-    private void printParamsInfo() {
-        System.out.println( "numbersInNames " + this.numbersInNames );
-        System.out.println( "size " + this.sizeInLines );
-        System.out.println( "sizeInChars " + this.sizeInChars );
-        System.out.println( "outFilesCount " + this.outFilesCount );
-        System.out.println( "baseName " + this.baseName );
-        System.out.println( "fileName " + this.fileName );
-    }
-
     public static void main(String[] args) throws FileNotFoundException, IOException {
         ModeFlag mode = ModeFlag.BY_LINES;
-
+        boolean isModeChanged; //по умолчанию false
         boolean numbersInNames = false;
         int sizeInLines = 100;
         int sizeInChars = 100;
@@ -117,14 +119,13 @@ public class Split {
         Iterator<String> it = argsList.iterator();
         while ( it.hasNext() ){
             String token = it.next();
-            System.out.println(token);
             switch ( token ){
                 case "-d":
                     numbersInNames = true;
-                    baseName = "ofile";
                     break;
                 case "-l":
                     sizeInLines = Integer.parseInt( it.next() );
+                    mode = ModeFlag.BY_LINES;
                     break;
                 case "-c":
                     sizeInChars = Integer.parseInt( it.next() );
@@ -142,8 +143,44 @@ public class Split {
                     break;
             }
         }
+        if( fileName.trim().isEmpty() ){
+            System.out.println( "Пожалуйста, обозначте имя входного файла" );
+            return;
+        }
+        if( !Files.exists( Paths.get( fileName ) ) ){
+            System.out.println( "Пожалуйста, укажите верное имя входного файла" );
+            return;
+        }
         Split split = new Split( numbersInNames, sizeInLines, sizeInChars, outFilesCount, baseName, fileName, mode);
         split.split();
+    }
+
+    /*package*/ String fileName( int index, int max ){
+        String res = "";
+        if( isNumbersInNames() ){
+            res = Integer.toString( index );
+        } else {
+            char[] alphabet = "abcdefghijklmnopqrstuvwxyz".toCharArray();
+            int base = alphabet.length;
+            int quotient = index - 1;
+            int digits = 0;
+            int size = 0;
+            int mult = base;
+            while( mult <= max ){
+                size++;
+                mult *= base;
+            }
+            while ( quotient > 0 ){
+                int digit = quotient % base;
+                quotient = quotient / base;
+                res = Character.toString( alphabet[ digit ] ) + res;
+                digits++;
+            }
+            for( int i = digits; i <= size; i++ ){
+                res = alphabet[ 0 ] + res;
+            }
+        }
+        return getBaseName() + res;
     }
 }
 

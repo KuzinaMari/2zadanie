@@ -25,7 +25,7 @@ public class ByFilesEngine extends Split.Engine {
         this.inputFile = new File( split.getFileName() );
         this.is = new FileInputStream( this.inputFile );
         this.os = null;
-        this.fileSize = Math.round( this.inputFile.length() / split.getOutFilesCount() );
+        this.fileSize = (int) Math.ceil( ((double)this.inputFile.length()) / split.getOutFilesCount() ) ;
         System.out.println( "outupt file size " + this.fileSize );
         this.currentByte = 0;
         this.currentFile = 0;
@@ -45,12 +45,13 @@ public class ByFilesEngine extends Split.Engine {
 
     @Override
     protected void checkNewFile() throws IOException {
+        int max = this.split.getOutFilesCount();
         if( this.currentByte > this.fileSize || this.file == null ){
             this.currentFile++;
             if( this.file != null ){
                 this.os.close();
             }
-            String pathname = "C:\\Users\\1\\IdeaProjects\\var122zd\\src\\var17\\" + this.split.getBaseName() + Integer.toString(currentFile);
+            String pathname = this.split.fileName( this.currentFile, max );
             System.out.println(pathname);
             this.file = new File(pathname);
             this.os = new FileOutputStream( this.file );
